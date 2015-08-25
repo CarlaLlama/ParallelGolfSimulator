@@ -53,11 +53,11 @@ public class Golfer extends Thread {
                 if(done.get()== false){
                     try {
                         sleep(swingTime.nextInt(2000));
-                        if(cartOnField.get()!=true){
+                        //if(cartOnField.get()!=true){
                             sharedField.hitBallOntoField(golferBucket[b]);
                         System.out.println("Golfer #"+ myID + " hit ball #"+golferBucket[b].getID()+" onto field");	
 
-                        }
+                        //}
                     } catch (InterruptedException e) {
                                 e.printStackTrace();
                         } //      swing
