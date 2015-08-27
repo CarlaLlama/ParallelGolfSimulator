@@ -1,5 +1,8 @@
 package golfgame;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * BallStash class for initializing the stash of golf balls for each golf game.
  * Contains an array of golfBalls, that is the size of the stash specified.
@@ -44,36 +47,52 @@ public class BallStash {
 
     /**
      * Fill a bucket of balls from the stash, remove these balls from the stash
+     * If not enough balls, then make the golfer thread wait.
      * @param myID - id of the golfer whose bucket is being filled (for printing out)
      * @param out - an empty array of golfBalls to put them in - the bucket
      * @return the bucket of balls
      */
-    public synchronized golfBall[] getBucketBalls(int myID, golfBall[] out){
+    public synchronized golfBall[] getBucketBalls(int myID, golfBall[] out) {
+        if(!enoughBalls()){
+            try {
+                this.wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BallStash.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         for (int i = 0; i < sizeBucket; i++) {
             for (int j = i; j < sizeStash; j++) {
-                if(stash[j]!=null && stash[j].isTaken()==false){
+                if(stash[j]!=null){
                     out[i] = stash[j]; 
-                    out[i].setTaken();
                     stash[j] = null;
                     break;
                 }                    
             }
         }
         System.out.println("<<< Golfer #"+ myID + " filled bucket with  "+sizeBucket+" balls" + " ("+getBallsInStash()+" balls remaining in stash).");
-        //System.out.println(Arrays.toString(stash));
         return out;
-        
     }
 
     /**
      * Add array of collected balls to the stash
      * @param g - array of collected balls
      */
-    public void addBallsToStash(golfBall[] g){
-        for (int i = 0; i < sizeStash; i++) {
-            if(g[i]!=null){
-                stash[i] = g[i];
+    public synchronized void addBallsToStash(golfBall[] g, int numAdded){
+        for (int i = 0; i < g.length; i++) {
+            if(stash[i]==null){
+                stash[i]=g[i];
             }
+        }
+        System.out.println("*********** Bollie adding "+numAdded+" balls to stash, "+getBallsInStash()+" balls in stash ************");
+        golfersGo();
+    }
+    
+    /**
+     * Release golfer threads that have been waiting
+     */
+    public void golfersGo(){
+        synchronized(this){
+            this.notifyAll();
         }
     }
 

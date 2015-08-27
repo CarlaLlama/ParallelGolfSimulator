@@ -2,9 +2,10 @@ package golfgame;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/**
+ * Initialization class for each golf ball.
+ */
 public class golfBall {
-	private AtomicBoolean taken = new AtomicBoolean();
 	private static int noBalls;
 	private int myID;
 	
@@ -16,18 +17,6 @@ public class golfBall {
 	public int getID() {
 		return myID;		
 	}
-        
-        public boolean isTaken(){
-            return taken.get();
-        }
-        
-        public void setTaken(){
-            taken.set(true);
-        }
-        
-        public void setNotTaken(){
-            taken.set(false);
-        }
 	
 	private static void  incID() {
 		noBalls++;

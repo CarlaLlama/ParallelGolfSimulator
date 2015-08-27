@@ -7,6 +7,13 @@ package golfgame;
  */
 public class VisualGame {
     
+    public void menu(){
+        System.out.println("****** Welcome to the visual golf game! ******");
+        
+    }
     
+    public void printGolfers(){
+        
+    }
     
 }
