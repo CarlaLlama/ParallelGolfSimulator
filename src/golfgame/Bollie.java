@@ -1,7 +1,7 @@
 package golfgame;
 
-import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Bollie extends Thread{
@@ -11,6 +11,7 @@ public class Bollie extends Thread{
     private BallStash sharedStash;              // link to shared stash
     private Range sharedField;                  // link to shared field
     private Random waitTime;
+    private Semaphore semaphore;
 
     /**
      * Bollie constructor
@@ -19,12 +20,13 @@ public class Bollie extends Thread{
      * @param doneFlag - initially set to false
      * @param cartOnField - initially set to false
      */
-    Bollie(BallStash stash,Range field,AtomicBoolean doneFlag, AtomicBoolean cartOnField) {
+    Bollie(BallStash stash,Range field,AtomicBoolean doneFlag, AtomicBoolean cartOnField, Semaphore s) {
         sharedStash = stash;
         sharedField = field;
         waitTime = new Random();
         done = doneFlag;
         bollieOnField = cartOnField;
+        semaphore = s;
     }
 
     /**
@@ -38,6 +40,7 @@ public class Bollie extends Thread{
                 sleep(waitTime.nextInt(5000)+2000);             //Sleep for 2-7 seconds
                 if(done.get()!=true){                           //Recheck condition for closing, to prevent more balls from being hit
                     bollieOnField.set(true);
+                    //semaphore.acquire();
                     System.out.println("*********** Bollie collecting balls   ************");	
                     ballsCollected = sharedField.collectAllBallsFromField();   //collect balls, no golfers allowed to swing while this is happening
                     int howManyBalls = 0;                                      //count how many balls collected
@@ -46,15 +49,20 @@ public class Bollie extends Thread{
                             howManyBalls++;
                         }
                     }
-                    System.out.println("*********** Bollie collected "+howManyBalls+" balls, adding them to stash ************");	
+                    System.out.println("*********** Bollie collected "+howManyBalls+" balls ************");	
                     synchronized(this){
                         notifyAll();
                     }
-                    bollieOnField.set(false);
-                    sleep(1000);
                     sharedStash.addBallsToStash(ballsCollected);
-                    System.out.println("balls in stash:"+sharedStash.getBallsInStash());                        
+                    //System.out.println("balls in stash:"+sharedStash.getBallsInStash());      
+                    sleep(1000);
+                    bollieOnField.set(false);
+                    for (int i = 0; i < semaphore.getQueueLength(); i++) {
+                        semaphore.release();
+                    }
+                    System.out.println("*********** Bollie adding "+howManyBalls+" balls to stash, "+sharedStash.getBallsInStash()+" balls in stash ************");
                 }
+                semaphore.release();
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

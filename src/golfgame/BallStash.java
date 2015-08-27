@@ -1,8 +1,5 @@
 package golfgame;
 
-import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 /**
  * BallStash class for initializing the stash of golf balls for each golf game.
  * Contains an array of golfBalls, that is the size of the stash specified.

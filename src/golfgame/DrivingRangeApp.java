@@ -1,7 +1,6 @@
 package golfgame;
 
 
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,9 +19,10 @@ public class DrivingRangeApp {
 		int sizeStash= Integer.parseInt(s.nextLine());
                 System.out.println("Please enter the number of balls per bucket:");
 		int sizeBucket=Integer.parseInt(s.nextLine());
-                
 		
-		//initialize shared variables
+                Semaphore semaphore = new Semaphore(1);
+
+                //initialize shared variables
                 
                 BallStash stash = new BallStash(sizeStash, sizeBucket);
                 AtomicBoolean cartFlag = new AtomicBoolean(false);
@@ -35,18 +35,17 @@ public class DrivingRangeApp {
 		//create threads and set them running
                 Golfer[] g = new Golfer[noGolfers];
                 for (int i = 0; i < noGolfers; i++) {
-                    g[i] = new Golfer(stash,field,cartFlag,done, sizeBucket, i+1);
+                    g[i] = new Golfer(stash,field,cartFlag,done, sizeBucket, i+1, semaphore);
                     g[i].start();
                 }
                 
-                Bollie bols = new Bollie(stash,field,done, cartFlag);
+                Bollie bols = new Bollie(stash,field,done, cartFlag, semaphore);
                 bols.start();
 		//for testing, just run for a bit
-		Thread.sleep(10000);
+		Thread.sleep(20000);
 		done.set(true);
 		System.out.println("=======  River Club Driving Range Closing ========");
 
-		
 	}
 
 }
