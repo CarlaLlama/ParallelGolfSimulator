@@ -1,14 +1,15 @@
 package golfgame;
 
+import static java.lang.Thread.sleep;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Bollie class for initializing the bollie thread run method.
+ * VisualBollie class for initializing the visualbollie thread run method.
  * Initializes bollie, stops golfer threads, collects balls and releases golfer threads when done
  */
-public class Bollie extends Thread{
+public class VisualBollie extends Thread{
 
     private AtomicBoolean done;                 // flag to indicate when threads should stop
     private AtomicBoolean bollieOnField;        // flag to indicate when bollie is on the range and the balls should stop
@@ -17,6 +18,7 @@ public class Bollie extends Thread{
     private Random waitTime;                    // random time to wake bollie up
     private Semaphore semaphore;
     private int noGolfers;
+    private VisualGame v;
 
     /**
      * Bollie constructor
@@ -26,7 +28,7 @@ public class Bollie extends Thread{
      * @param cartOnField - initially set to false
      * @param s - semaphore that golfers have acquired while bollie is on field
      */
-    Bollie(BallStash stash,Range field,AtomicBoolean doneFlag, AtomicBoolean cartOnField, int noGolfers, Semaphore s) {
+    VisualBollie(BallStash stash,Range field,AtomicBoolean doneFlag, AtomicBoolean cartOnField, int noGolfers, Semaphore s, VisualGame v) {
         sharedStash = stash;
         sharedField = field;
         waitTime = new Random();
@@ -34,6 +36,7 @@ public class Bollie extends Thread{
         bollieOnField = cartOnField;
         this.noGolfers = noGolfers;
         semaphore = s;
+        this.v = v;
     }
 
     /**
@@ -47,6 +50,7 @@ public class Bollie extends Thread{
                 sleep(waitTime.nextInt(5000)+2000);                             //Sleep for 2-7 seconds
                 if(done.get()!=true){                                           //Recheck condition for closing, just in case!
                     bollieOnField.set(true);                                    //Set Atomic boolean to true
+                    v.printBollie();
                     System.out.println("*********** Bollie collecting balls   ************");	
                     ballsCollected = sharedField.collectAllBallsFromField();    //Collect balls, no golfers allowed to swing while this is happening
                     

@@ -55,6 +55,20 @@ public class Range {
      * @param ball to hit onto field.
      */
     public synchronized void hitBallOntoField(golfBall ball){
-        ballsOnField[ball.getID()] = ball;
+            ballsOnField[ball.getID()] = ball;
+    }
+    
+    //VISUAL METHODS
+    //Print line representing the field, with all the balls
+    public synchronized String lineToPrint(){
+        String out = "";
+        for(int i = 0; i < sizeStash; i ++){
+            if(ballsOnField[i]==null){
+                out+=" ";
+            }else{
+                out+=ballsOnField[i].getID();
+            }
+        }
+        return out;
     }
 }

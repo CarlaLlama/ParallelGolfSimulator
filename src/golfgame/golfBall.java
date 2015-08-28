@@ -21,9 +21,5 @@ public class golfBall {
 	private static void  incID() {
 		noBalls++;
 	}
-        @Override
-        public String toString(){
-            return ""+myID;
-        }
 	
 }

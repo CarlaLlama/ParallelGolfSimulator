@@ -1,5 +1,6 @@
 package golfgame;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +53,7 @@ public class BallStash {
      * @param out - an empty array of golfBalls to put them in - the bucket
      * @return the bucket of balls
      */
-    public synchronized golfBall[] getBucketBalls(int myID, golfBall[] out) {
+    public synchronized golfBall[] getBucketBalls(int myID, golfBall[] out, AtomicBoolean done) {
         if(!enoughBalls()){
             try {
                 this.wait();
@@ -60,6 +61,9 @@ public class BallStash {
                 Logger.getLogger(BallStash.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if(done.get()!=true){
+            
+        
         for (int i = 0; i < sizeBucket; i++) {
             for (int j = i; j < sizeStash; j++) {
                 if(stash[j]!=null){
@@ -70,20 +74,20 @@ public class BallStash {
             }
         }
         System.out.println("<<< Golfer #"+ myID + " filled bucket with  "+sizeBucket+" balls" + " ("+getBallsInStash()+" balls remaining in stash).");
-        return out;
+        
+        }return out;
     }
 
     /**
      * Add array of collected balls to the stash
      * @param g - array of collected balls
      */
-    public synchronized void addBallsToStash(golfBall[] g, int numAdded){
+    public synchronized void addBallsToStash(golfBall[] g){
         for (int i = 0; i < g.length; i++) {
-            if(stash[i]==null){
-                stash[i]=g[i];
-            }
+           int pos = g[i].getID();
+           stash[pos] = g[i]; 
         }
-        System.out.println("*********** Bollie adding "+numAdded+" balls to stash, "+getBallsInStash()+" balls in stash ************");
+        System.out.println("*********** Bollie adding "+g.length+" balls to stash, "+getBallsInStash()+" balls in stash ************");
         golfersGo();
     }
     
@@ -100,7 +104,7 @@ public class BallStash {
      * Calculate the number of balls currently in the stash
      * @return - number of balls in stash
      */
-    public int getBallsInStash(){
+    public synchronized int getBallsInStash(){
         int numBalls=0;
         for (golfBall stash1 : stash) {
             if (stash1 != null) {
@@ -108,5 +112,9 @@ public class BallStash {
             }
         }
         return numBalls;
+    }
+    
+    public int size(){
+        return sizeStash;
     }
 }
